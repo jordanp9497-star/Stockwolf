@@ -12,7 +12,7 @@ const supabase = createClient(
 function getStripe() {
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key) throw new Error("ENV_MISSING: STRIPE_SECRET_KEY");
-  return new Stripe(key, { apiVersion: "2024-06-20" });
+  return new Stripe(key);
 }
 
 async function upsertClientAndSubscription(params: {

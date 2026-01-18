@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "missing_fields" }, { status: 400 });
     }
 
-    const stripe = new Stripe(key, { apiVersion: "2024-06-20" as any });
+    const stripe = new Stripe(key);
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
