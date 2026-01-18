@@ -12,6 +12,15 @@ function getSupabase() {
   return createClient(url, key, { auth: { persistSession: false } });
 }
 
+function parseTickers(tickersStr: string | null | undefined): string[] {
+  if (!tickersStr || typeof tickersStr !== "string") return [];
+  return tickersStr
+    .split(",")
+    .map((t) => t.trim().toUpperCase())
+    .filter(Boolean)
+    .filter((v, i, arr) => arr.indexOf(v) === i); // dedup
+}
+
 export async function GET(req: NextRequest) {
   try {
     const expected = process.env.N8N_SHARED_SECRET;
@@ -41,27 +50,33 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ clients: [] }, { status: 200 });
     }
 
-    // 2) récupère les clients correspondants
+    // 2) récupère les clients correspondants avec les nouveaux champs tickers
     const { data: clients, error: cErr } = await supabase
       .from("clients")
-      .select("client_id,client_name,digest_emails,urgent_emails,universe_tickers,timezone")
+      .select("client_id,client_name,digest_emails,urgent_emails,universe_tickers,sec_tickers,news_tickers,timezone")
       .in("id", activeClientIds);
 
     if (cErr) {
       return NextResponse.json({ error: "SUPABASE_CLIENTS_SELECT_FAILED", details: cErr.message }, { status: 500 });
     }
 
-    const out = (clients || []).map(c => ({
-      client_id: c.client_id,
-      client_name: c.client_name,
-      digest_emails: c.digest_emails,
-      urgent_emails: c.urgent_emails,
-      universeTickers: String(c.universe_tickers || "")
-        .split(",")
-        .map(s => s.trim().toUpperCase())
-        .filter(Boolean),
-      timezone: c.timezone || "Europe/Paris",
-    }));
+    const out = (clients || []).map(c => {
+      // universeTickers: news_tickers si présent, sinon universe_tickers
+      const universeTickers = parseTickers(c.news_tickers || c.universe_tickers || null);
+      
+      // secTickers: sec_tickers si présent, sinon universe_tickers
+      const secTickers = parseTickers(c.sec_tickers || c.universe_tickers || null);
+
+      return {
+        client_id: c.client_id,
+        client_name: c.client_name,
+        digest_emails: c.digest_emails,
+        urgent_emails: c.urgent_emails,
+        universeTickers,
+        secTickers,
+        timezone: c.timezone || "Europe/Paris",
+      };
+    });
 
     return NextResponse.json({ clients: out }, { status: 200 });
   } catch (e: any) {

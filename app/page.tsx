@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
+import OnboardingModal from "@/components/OnboardingModal";
 
 function StockWolfLogo() {
   return (
@@ -74,6 +75,26 @@ function scrollToSection() {
 }
 
 export default function Home() {
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+
+  useEffect(() => {
+    // Vérifie si l'onboarding a déjà été vu
+    const hasSeenOnboarding = typeof window !== "undefined" && localStorage.getItem("stockwolf_onboarding_seen") === "1";
+    if (!hasSeenOnboarding) {
+      // Petit délai pour que la page se charge avant d'afficher la modal
+      const timer = setTimeout(() => {
+        setIsOnboardingOpen(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const handleOnboardingComplete = () => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("stockwolf_onboarding_seen", "1");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white relative">
       {/* Grid pattern background */}
@@ -115,7 +136,7 @@ export default function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               {/* Left: Hero Content */}
               <div>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-gray-900 mb-6 leading-tight">
+                <h1 className="text-2xl md:text-3xl font-medium text-gray-800/90 mb-6 leading-relaxed max-w-3xl mx-auto">
                   Décuplez votre potentiel d'investisseur en ayant une longueur d'avance !
                 </h1>
                 <p className="text-lg md:text-xl text-gray-600 mb-6">
@@ -134,10 +155,10 @@ export default function Home() {
                     S'abonner — 4,99€/mois
                   </Link>
                   <button
-                    onClick={scrollToSection}
+                    onClick={() => setIsOnboardingOpen(true)}
                     className="inline-block border border-gray-300 text-gray-700 px-8 py-3 rounded-md font-medium hover:bg-gray-50 transition-colors text-center"
                   >
-                    Voir comment ça marche
+                    Découvrir Stockwolf
                   </button>
                 </div>
               </div>
@@ -283,6 +304,12 @@ export default function Home() {
         </div>
       </footer>
 
+      {/* Onboarding Modal */}
+      <OnboardingModal
+        isOpen={isOnboardingOpen}
+        onClose={() => setIsOnboardingOpen(false)}
+        onComplete={handleOnboardingComplete}
+      />
     </div>
   );
 }
