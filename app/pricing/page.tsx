@@ -8,14 +8,14 @@ function StockWolfLogo() {
     <div className="flex flex-col gap-0.5">
       <div className="flex items-center gap-2">
         <div className="relative">
-          <div className="w-8 h-8 rounded-full border-2 border-gray-900 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full border-2 border-zinc-100 flex items-center justify-center">
             <svg
               width="18"
               height="18"
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              className="text-gray-900"
+              className="text-zinc-100"
             >
               <path
                 d="M12 4c-2.5 0-4.5 2-4.5 4.5 0 2.5 2 4.5 4.5 4.5s4.5-2 4.5-4.5S14.5 4 12 4zm0 7c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11 12 11z"
@@ -44,9 +44,9 @@ function StockWolfLogo() {
             </svg>
           </div>
         </div>
-        <span className="text-xl font-semibold text-gray-900">StockWolf</span>
+        <span className="text-xl font-semibold text-zinc-100">StockWolf</span>
       </div>
-      <p className="text-xs text-gray-500 ml-10">IA/Tech Market Intel Digest</p>
+      <p className="text-xs text-zinc-400 ml-10">IA/Tech Market Intel Digest</p>
     </div>
   );
 }
@@ -116,9 +116,9 @@ export default function PricingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-zinc-950">
       {/* Header */}
-      <header className="border-b border-gray-200">
+      <header className="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <Link href="/">
             <StockWolfLogo />
@@ -126,7 +126,7 @@ export default function PricingPage() {
           <nav>
             <Link
               href="/"
-              className="text-gray-600 hover:text-gray-900 text-sm font-medium"
+              className="text-zinc-400 hover:text-zinc-100 text-sm font-medium transition-colors"
             >
               Accueil
             </Link>
@@ -138,46 +138,46 @@ export default function PricingPage() {
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-16">
-            <h1 className="text-4xl font-semibold text-gray-900 mb-4">
+            <h1 className="text-4xl font-semibold text-zinc-100 mb-4">
               Abonnement
             </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
               Accédez à notre veille boursière IA/Tech automatisée
             </p>
           </div>
 
           {/* Pricing Card */}
           <div className="max-w-md mx-auto mb-12">
-            <div className="border border-gray-200 rounded-lg p-8 bg-white shadow-lg hover:shadow-xl transition-shadow">
+            <div className="border border-zinc-800 rounded-lg p-8 bg-zinc-900 shadow-xl hover:shadow-2xl hover:shadow-zinc-900/50 transition-shadow">
               <div className="mb-6">
-                <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+                <h2 className="text-2xl font-semibold text-zinc-100 mb-2">
                   Accès mailing StockWolf
                 </h2>
                 <div className="flex items-baseline">
-                  <span className="text-4xl font-semibold text-gray-900">
+                  <span className="text-4xl font-semibold text-zinc-100">
                     4,99€
                   </span>
-                  <span className="text-gray-600 ml-2">/mois</span>
+                  <span className="text-zinc-400 ml-2">/mois</span>
                 </div>
               </div>
 
               <ul className="space-y-3 mb-8">
-                <li className="text-gray-700 flex items-start">
-                  <span className="text-gray-400 mr-2">•</span>
+                <li className="text-zinc-300 flex items-start">
+                  <span className="text-zinc-500 mr-2">•</span>
                   <span>Veille SEC (8-K / 10-Q / 10-K / S-1) + News</span>
                 </li>
-                <li className="text-gray-700 flex items-start">
-                  <span className="text-gray-400 mr-2">•</span>
+                <li className="text-zinc-300 flex items-start">
+                  <span className="text-zinc-500 mr-2">•</span>
                   <span>Résumé IA: impact, importance, confiance</span>
                 </li>
-                <li className="text-gray-700 flex items-start">
-                  <span className="text-gray-400 mr-2">•</span>
+                <li className="text-zinc-300 flex items-start">
+                  <span className="text-zinc-500 mr-2">•</span>
                   <span>Digest email + alertes (quand vraiment critique)</span>
                 </li>
               </ul>
 
-              <div className="pt-4 border-t border-gray-200">
-                <p className="text-xs text-gray-500 italic">
+              <div className="pt-4 border-t border-zinc-800">
+                <p className="text-xs text-zinc-500 italic">
                   Info uniquement — pas un conseil financier.
                 </p>
               </div>
@@ -185,63 +185,63 @@ export default function PricingPage() {
           </div>
 
           {/* Form */}
-          <div className="max-w-md mx-auto p-6 bg-gray-50 rounded-lg border border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <div className="max-w-md mx-auto p-6 bg-zinc-900 rounded-lg border border-zinc-800">
+            <h2 className="text-xl font-semibold text-zinc-100 mb-4">
               Vos informations
             </h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-zinc-300 mb-1">
                   Email *
                 </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900"
+                  className="w-full px-4 py-2 border border-zinc-700 rounded-md bg-zinc-950 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-100 focus:border-transparent placeholder:text-zinc-500"
                   placeholder="votre@email.com"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-zinc-300 mb-1">
                   Nom *
                 </label>
                 <input
                   type="text"
                   value={clientName}
                   onChange={(e) => setClientName(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900"
+                  className="w-full px-4 py-2 border border-zinc-700 rounded-md bg-zinc-950 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-100 focus:border-transparent placeholder:text-zinc-500"
                   placeholder="Nom de votre organisation"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-zinc-300 mb-1">
                   Identifiant (slug) *
                 </label>
                 <input
                   type="text"
                   value={clientId}
                   onChange={(e) => setClientId(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 bg-white"
+                  className="w-full px-4 py-2 border border-zinc-700 rounded-md bg-zinc-950 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-100 focus:border-transparent placeholder:text-zinc-500"
                   placeholder="mon-identifiant"
                   required
                 />
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs text-zinc-500">
                   Généré automatiquement depuis le nom (éditable)
                 </p>
               </div>
             </div>
             {error && (
-              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+              <div className="mt-4 p-3 bg-red-950/50 border border-red-900/50 rounded-md text-red-300 text-sm">
                 {error}
               </div>
             )}
             <button
               onClick={handleCheckout}
               disabled={loading}
-              className="w-full mt-6 py-3 px-6 bg-gray-900 text-white rounded-md font-medium hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="w-full mt-6 py-3 px-6 bg-zinc-100 text-zinc-950 rounded-md font-medium hover:bg-zinc-200 transition-colors disabled:bg-zinc-800 disabled:text-zinc-500 disabled:cursor-not-allowed"
             >
               {loading ? "Redirection..." : "S'abonner"}
             </button>
