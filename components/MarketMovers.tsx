@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 
 interface Mover {
-  ticker: string;
-  name: string;
-  changePercent: number;
-  price: number;
+  symbol: string;
+  name?: string;
+  price?: number;
+  change?: number;
+  changePercent?: number;
 }
 
 interface MarketMoversData {
@@ -30,16 +31,18 @@ export default function MarketMovers() {
       if (!res.ok || json.ok === false) {
         // Handle structured error response
         let errorMsg = "Erreur lors du chargement des données";
-        if (json.error === "MISSING_FMP_API_KEY") {
-          errorMsg = "Configuration serveur manquante (clé API)";
-        } else if (json.error === "FMP_ERROR") {
-          errorMsg = `Erreur API FMP (status ${json.status || "unknown"})`;
-        } else if (json.error === "FMP_API_TIMEOUT") {
+        if (json.error === "MISSING_ALPHAVANTAGE_API_KEY") {
+          errorMsg = "Clé API manquante côté serveur";
+        } else if (json.error === "AV_ERROR") {
+          errorMsg = json.reason?.toLowerCase().includes("rate limit") || json.reason?.toLowerCase().includes("call frequency")
+            ? "Limite API atteinte, réessaie plus tard"
+            : `Erreur API Alpha Vantage: ${json.reason || "Erreur inconnue"}`;
+        } else if (json.error === "AV_API_TIMEOUT") {
           errorMsg = "Timeout lors de l'appel API (10s dépassés)";
         } else if (json.error === "FETCH_ERROR") {
           errorMsg = `Erreur réseau: ${json.details || "connexion échouée"}`;
         } else if (json.error) {
-          errorMsg = json.error;
+          errorMsg = `Erreur API (${json.status || json.error})`;
         }
         setError(errorMsg);
         console.error("[MarketMovers] API Error:", json);
@@ -80,28 +83,33 @@ export default function MarketMovers() {
       : "border-red-500/30 bg-red-500/10";
     const textColorClass = isGainer ? "text-green-400" : "text-red-400";
     const arrow = isGainer ? "▲" : "▼";
+    const changePercent = mover.changePercent ?? 0;
 
     return (
       <div
-        key={mover.ticker}
+        key={mover.symbol}
         className={`flex items-center justify-between p-3 rounded-lg border ${colorClass} hover:bg-opacity-20 transition-colors`}
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <span className="font-semibold text-zinc-100 font-mono">
-              {mover.ticker}
+              {mover.symbol}
             </span>
             <span className={`text-sm font-medium ${textColorClass}`}>
-              {arrow} {formatPercent(mover.changePercent)}
+              {arrow} {formatPercent(changePercent)}
             </span>
           </div>
-          <p className="text-xs text-zinc-400 truncate">{mover.name}</p>
+          {mover.name && (
+            <p className="text-xs text-zinc-400 truncate">{mover.name}</p>
+          )}
         </div>
-        <div className="ml-4 text-right">
-          <p className="text-sm font-semibold text-zinc-200">
-            {formatPrice(mover.price)}
-          </p>
-        </div>
+        {mover.price !== undefined && (
+          <div className="ml-4 text-right">
+            <p className="text-sm font-semibold text-zinc-200">
+              {formatPrice(mover.price)}
+            </p>
+          </div>
+        )}
       </div>
     );
   };

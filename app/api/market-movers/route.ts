@@ -4,29 +4,40 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const revalidate = 300; // Cache 5 minutes (300 secondes)
 
-interface FMPGainerLoser {
-  symbol: string;
-  name: string;
-  change?: number;
-  changesPercentage?: string | number;
-  price: number;
+interface AlphaVantageMover {
+  ticker: string;
+  price?: string;
+  change_amount?: string;
+  change_percentage?: string;
+  volume?: string;
+}
+
+interface AlphaVantageResponse {
+  metadata?: string;
+  top_gainers?: AlphaVantageMover[];
+  top_losers?: AlphaVantageMover[];
+  most_actively_traded?: AlphaVantageMover[];
+  Information?: string; // Rate limit message
+  "Error Message"?: string; // Error message
+  "Note"?: string; // Rate limit note
 }
 
 interface NormalizedMover {
-  ticker: string;
-  name: string;
-  changePercent: number;
-  price: number;
+  symbol: string;
+  name?: string;
+  price?: number;
+  change?: number;
+  changePercent?: number;
 }
 
 export async function GET(req: NextRequest) {
   try {
-    const apiKey = process.env.FMP_API_KEY;
+    const apiKey = process.env.ALPHAVANTAGE_API_KEY;
 
     if (!apiKey) {
-      console.error("[MARKET_MOVERS] MISSING_FMP_API_KEY: env var not set");
+      console.error("[MARKET_MOVERS] MISSING_ALPHAVANTAGE_API_KEY: env var not set");
       return NextResponse.json(
-        { ok: false, error: "MISSING_FMP_API_KEY" },
+        { ok: false, error: "MISSING_ALPHAVANTAGE_API_KEY" },
         { status: 500 }
       );
     }
@@ -45,55 +56,29 @@ export async function GET(req: NextRequest) {
       } catch (e: any) {
         clearTimeout(timeoutId);
         if (e.name === "AbortError") {
-          throw new Error("FMP_API_TIMEOUT");
+          throw new Error("AV_API_TIMEOUT");
         }
         throw e;
       }
     };
 
-    const gainersUrl = `https://financialmodelingprep.com/api/v3/stock_market/gainers?apikey=${apiKey}`;
-    const losersUrl = `https://financialmodelingprep.com/api/v3/stock_market/losers?apikey=${apiKey}`;
+    const apiUrl = `https://www.alphavantage.co/query?function=TOP_GAINERS_LOSERS&apikey=${apiKey}`;
 
-    // Fetch gainers and losers in parallel with timeout
-    let gainersRes: Response;
-    let losersRes: Response;
-
+    // Fetch from Alpha Vantage with timeout
+    let avRes: Response;
     try {
-      [gainersRes, losersRes] = await Promise.all([
-        fetchWithTimeout(gainersUrl, 10000),
-        fetchWithTimeout(losersUrl, 10000),
-      ]);
+      avRes = await fetchWithTimeout(apiUrl, 10000);
     } catch (e: any) {
       console.error("[MARKET_MOVERS] Fetch timeout/error:", e?.message || String(e));
       return NextResponse.json(
-        { ok: false, error: e?.message === "FMP_API_TIMEOUT" ? "FMP_API_TIMEOUT" : "FETCH_ERROR", details: e?.message || String(e) },
+        { ok: false, error: e?.message === "AV_API_TIMEOUT" ? "AV_API_TIMEOUT" : "FETCH_ERROR", details: e?.message || String(e) },
         { status: 500 }
       );
     }
 
-    if (!gainersRes.ok || !losersRes.ok) {
-      const status = gainersRes.ok ? losersRes.status : gainersRes.status;
-      const failingRes = gainersRes.ok ? losersRes : gainersRes;
-      let bodyPreview = "";
-      try {
-        const text = await failingRes.text();
-        bodyPreview = text.substring(0, 200);
-      } catch {
-        bodyPreview = "Could not read response body";
-      }
-      console.error(`[MARKET_MOVERS] FMP_ERROR status=${status}`, bodyPreview);
-      return NextResponse.json(
-        { ok: false, error: "FMP_ERROR", status, bodyPreview },
-        { status: 500 }
-      );
-    }
-
-    let gainersData: FMPGainerLoser[];
-    let losersData: FMPGainerLoser[];
-
+    let avData: AlphaVantageResponse;
     try {
-      gainersData = await gainersRes.json();
-      losersData = await losersRes.json();
+      avData = await avRes.json();
     } catch (e: any) {
       console.error("[MARKET_MOVERS] JSON parse error:", e?.message || String(e));
       return NextResponse.json(
@@ -102,34 +87,64 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Normalize data - FMP returns changesPercentage as string like "+5.23%" or number
-    const normalize = (item: FMPGainerLoser): NormalizedMover => {
-      let changePercent = 0;
-      if (item.changesPercentage) {
-        const str = String(item.changesPercentage).replace("%", "").replace("+", "");
-        const parsed = parseFloat(str);
-        changePercent = isNaN(parsed) ? 0 : parsed;
-      } else if (item.change !== undefined) {
-        changePercent = item.change;
+    // Check for Alpha Vantage errors/rate limits
+    if (avData.Information || avData["Error Message"] || avData["Note"]) {
+      const errorMsg = avData["Error Message"] || avData.Information || avData["Note"] || "Alpha Vantage API error";
+      const bodyPreview = errorMsg.substring(0, 200);
+      const statusCode = errorMsg.toLowerCase().includes("rate limit") || errorMsg.toLowerCase().includes("call frequency") ? 429 : 502;
+      
+      console.error(`[MARKET_MOVERS] AV_ERROR:`, bodyPreview);
+      return NextResponse.json(
+        { ok: false, error: "AV_ERROR", reason: errorMsg, bodyPreview },
+        { status: statusCode }
+      );
+    }
+
+    if (!avData.top_gainers || !avData.top_losers) {
+      console.error("[MARKET_MOVERS] Invalid AV response structure:", Object.keys(avData));
+      return NextResponse.json(
+        { ok: false, error: "INVALID_RESPONSE", details: "Missing top_gainers or top_losers in response" },
+        { status: 500 }
+      );
+    }
+
+    // Normalize data - convert strings to numbers where possible
+    const normalize = (item: AlphaVantageMover): NormalizedMover => {
+      const parseNumber = (str: string | undefined): number | undefined => {
+        if (!str) return undefined;
+        const cleaned = String(str).replace(/[,$%+]/g, "");
+        const parsed = parseFloat(cleaned);
+        return isNaN(parsed) ? undefined : parsed;
+      };
+
+      const price = parseNumber(item.price);
+      const change = parseNumber(item.change_amount);
+      let changePercent = parseNumber(item.change_percentage);
+      
+      // If change_percentage has %, remove it before parsing
+      if (item.change_percentage && typeof item.change_percentage === "string") {
+        changePercent = parseNumber(item.change_percentage);
       }
 
       return {
-        ticker: item.symbol || "",
-        name: item.name || item.symbol || "",
+        symbol: item.ticker || "",
+        price,
+        change,
         changePercent,
-        price: item.price || 0,
       };
     };
 
-    const gainers = (gainersData || []).slice(0, 10).map(normalize);
-    const losers = (losersData || []).slice(0, 10).map(normalize);
+    const gainers = (avData.top_gainers || []).slice(0, 10).map(normalize);
+    const losers = (avData.top_losers || []).slice(0, 10).map(normalize);
+
+    const asOf = avData.metadata ? new Date().toISOString() : undefined;
 
     return NextResponse.json(
-      { ok: true, gainers, losers },
+      { ok: true, gainers, losers, asOf },
       {
         status: 200,
         headers: {
-          "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+          "Cache-Control": "public, s-maxage=300, stale-while-revalidate=300",
         },
       }
     );

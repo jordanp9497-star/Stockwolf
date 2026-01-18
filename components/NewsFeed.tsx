@@ -4,14 +4,15 @@ import { useState, useEffect } from "react";
 
 interface NewsItem {
   title: string;
-  source: string;
+  source?: string;
   publishedAt: string;
   url: string;
-  symbol?: string;
+  summary?: string;
+  image?: string;
 }
 
 interface NewsData {
-  news: NewsItem[];
+  items: NewsItem[];
 }
 
 export default function NewsFeed() {
@@ -30,16 +31,16 @@ export default function NewsFeed() {
       if (!res.ok || json.ok === false) {
         // Handle structured error response
         let errorMsg = "Erreur lors du chargement des actualités";
-        if (json.error === "MISSING_FMP_API_KEY") {
-          errorMsg = "Configuration serveur manquante (clé API)";
-        } else if (json.error === "FMP_ERROR") {
-          errorMsg = `Erreur API FMP (status ${json.status || "unknown"})`;
-        } else if (json.error === "FMP_API_TIMEOUT") {
+        if (json.error === "MISSING_FINNHUB_API_KEY") {
+          errorMsg = "Clé API manquante côté serveur";
+        } else if (json.error === "FINNHUB_ERROR") {
+          errorMsg = `Erreur API Finnhub (status ${json.status || "unknown"})`;
+        } else if (json.error === "FINNHUB_API_TIMEOUT") {
           errorMsg = "Timeout lors de l'appel API (10s dépassés)";
         } else if (json.error === "FETCH_ERROR") {
           errorMsg = `Erreur réseau: ${json.details || "connexion échouée"}`;
         } else if (json.error) {
-          errorMsg = json.error;
+          errorMsg = `Erreur API (${json.status || json.error})`;
         }
         setError(errorMsg);
         console.error("[NewsFeed] API Error:", json);
@@ -100,7 +101,7 @@ export default function NewsFeed() {
     );
   }
 
-  if (error || !data || !data.news || data.news.length === 0) {
+  if (error || !data || !data.items || data.items.length === 0) {
     return (
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-zinc-950">
         <div className="max-w-6xl mx-auto">
@@ -145,7 +146,7 @@ export default function NewsFeed() {
 
         {/* News Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          {data.news.map((item, index) => (
+          {data.items.map((item, index) => (
             <a
               key={index}
               href={item.url}
@@ -159,16 +160,11 @@ export default function NewsFeed() {
                 </h3>
               </div>
               <div className="flex items-center justify-between text-xs text-zinc-400 mt-3">
-                <span className="truncate">{item.source}</span>
+                <span className="truncate">{item.source || "Source inconnue"}</span>
                 <span className="ml-2 whitespace-nowrap">
                   {formatDate(item.publishedAt)}
                 </span>
               </div>
-              {item.symbol && (
-                <span className="inline-block mt-2 px-2 py-0.5 bg-zinc-800 text-zinc-300 text-xs rounded font-mono">
-                  {item.symbol}
-                </span>
-              )}
             </a>
           ))}
         </div>

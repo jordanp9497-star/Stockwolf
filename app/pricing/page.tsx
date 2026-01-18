@@ -2,51 +2,25 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import StockWolfIcon from "@/components/StockWolfLogo";
 
 function StockWolfLogo() {
   return (
     <div className="flex flex-col gap-0.5">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <div className="relative">
-          <div className="w-8 h-8 rounded-full border-2 border-zinc-100 flex items-center justify-center">
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="text-zinc-100"
-            >
-              <path
-                d="M12 4c-2.5 0-4.5 2-4.5 4.5 0 2.5 2 4.5 4.5 4.5s4.5-2 4.5-4.5S14.5 4 12 4zm0 7c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11 12 11z"
-                fill="currentColor"
-              />
-              <path
-                d="M9 8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5S9 9.33 9 8.5zm4.5 0c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5z"
-                fill="currentColor"
-              />
-              <path
-                d="M10.5 12.5h3c.28 0 .5.22.5.5s-.22.5-.5.5h-3c-.28 0-.5-.22-.5-.5s.22-.5.5-.5z"
-                fill="currentColor"
-              />
-              <path
-                d="M12 14c-1.1 0-2 .9-2 2v2h4v-2c0-1.1-.9-2-2-2z"
-                fill="currentColor"
-                opacity="0.6"
-              />
-              <path
-                d="M7 6.5L5 8.5M17 6.5l2 2M7 15l-2-2M17 15l2-2"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                opacity="0.3"
-              />
-            </svg>
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-white/15 flex items-center justify-center bg-white/5 p-1">
+            <StockWolfIcon size={28} className="md:w-8 md:h-8 text-zinc-100" />
           </div>
         </div>
-        <span className="text-xl font-semibold text-zinc-100">StockWolf</span>
+        <span 
+          className="text-xl font-bold text-zinc-100 tracking-tight"
+          style={{ fontFamily: 'var(--font-sora)' }}
+        >
+          StockWolf
+        </span>
       </div>
-      <p className="text-xs text-zinc-400 ml-10">IA/Tech Market Intel Digest</p>
+      <p className="text-[10px] text-zinc-500 ml-12 tracking-wide uppercase">IA & Tech • Market Intelligence</p>
     </div>
   );
 }
