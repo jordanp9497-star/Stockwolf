@@ -24,37 +24,83 @@ export async function GET(req: NextRequest) {
     const apiKey = process.env.FMP_API_KEY;
 
     if (!apiKey) {
+      console.error("[MARKET_MOVERS] MISSING_FMP_API_KEY: env var not set");
       return NextResponse.json(
-        { error: "FMP_API_KEY not configured" },
+        { ok: false, error: "MISSING_FMP_API_KEY" },
         { status: 500 }
       );
     }
 
-    // Fetch gainers and losers in parallel
-    const [gainersRes, losersRes] = await Promise.all([
-      fetch(
-        `https://financialmodelingprep.com/api/v3/stock_market/gainers?apikey=${apiKey}`,
-        {
+    // Timeout helper
+    const fetchWithTimeout = async (url: string, timeoutMs: number = 10000) => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const res = await fetch(url, {
           next: { revalidate: 300 },
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+        return res;
+      } catch (e: any) {
+        clearTimeout(timeoutId);
+        if (e.name === "AbortError") {
+          throw new Error("FMP_API_TIMEOUT");
         }
-      ),
-      fetch(
-        `https://financialmodelingprep.com/api/v3/stock_market/losers?apikey=${apiKey}`,
-        {
-          next: { revalidate: 300 },
-        }
-      ),
-    ]);
+        throw e;
+      }
+    };
+
+    const gainersUrl = `https://financialmodelingprep.com/api/v3/stock_market/gainers?apikey=${apiKey}`;
+    const losersUrl = `https://financialmodelingprep.com/api/v3/stock_market/losers?apikey=${apiKey}`;
+
+    // Fetch gainers and losers in parallel with timeout
+    let gainersRes: Response;
+    let losersRes: Response;
+
+    try {
+      [gainersRes, losersRes] = await Promise.all([
+        fetchWithTimeout(gainersUrl, 10000),
+        fetchWithTimeout(losersUrl, 10000),
+      ]);
+    } catch (e: any) {
+      console.error("[MARKET_MOVERS] Fetch timeout/error:", e?.message || String(e));
+      return NextResponse.json(
+        { ok: false, error: e?.message === "FMP_API_TIMEOUT" ? "FMP_API_TIMEOUT" : "FETCH_ERROR", details: e?.message || String(e) },
+        { status: 500 }
+      );
+    }
 
     if (!gainersRes.ok || !losersRes.ok) {
+      const status = gainersRes.ok ? losersRes.status : gainersRes.status;
+      const failingRes = gainersRes.ok ? losersRes : gainersRes;
+      let bodyPreview = "";
+      try {
+        const text = await failingRes.text();
+        bodyPreview = text.substring(0, 200);
+      } catch {
+        bodyPreview = "Could not read response body";
+      }
+      console.error(`[MARKET_MOVERS] FMP_ERROR status=${status}`, bodyPreview);
       return NextResponse.json(
-        { error: "FMP API error", status: gainersRes.status },
+        { ok: false, error: "FMP_ERROR", status, bodyPreview },
         { status: 500 }
       );
     }
 
-    const gainersData: FMPGainerLoser[] = await gainersRes.json();
-    const losersData: FMPGainerLoser[] = await losersRes.json();
+    let gainersData: FMPGainerLoser[];
+    let losersData: FMPGainerLoser[];
+
+    try {
+      gainersData = await gainersRes.json();
+      losersData = await losersRes.json();
+    } catch (e: any) {
+      console.error("[MARKET_MOVERS] JSON parse error:", e?.message || String(e));
+      return NextResponse.json(
+        { ok: false, error: "JSON_PARSE_ERROR", details: e?.message || String(e) },
+        { status: 500 }
+      );
+    }
 
     // Normalize data - FMP returns changesPercentage as string like "+5.23%" or number
     const normalize = (item: FMPGainerLoser): NormalizedMover => {
@@ -79,7 +125,7 @@ export async function GET(req: NextRequest) {
     const losers = (losersData || []).slice(0, 10).map(normalize);
 
     return NextResponse.json(
-      { gainers, losers },
+      { ok: true, gainers, losers },
       {
         status: 200,
         headers: {
@@ -88,9 +134,9 @@ export async function GET(req: NextRequest) {
       }
     );
   } catch (e: any) {
-    console.error("[MARKET_MOVERS] Error:", e?.message || String(e));
+    console.error("[MARKET_MOVERS] Unexpected error:", e?.message || String(e), e?.stack);
     return NextResponse.json(
-      { error: "SERVER_ERROR", details: e?.message || String(e) },
+      { ok: false, error: "SERVER_ERROR", details: e?.message || String(e) },
       { status: 500 }
     );
   }

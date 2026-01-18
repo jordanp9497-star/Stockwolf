@@ -19,26 +19,44 @@ export default function NewsFeed() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        // Optionally filter by tech tickers: ?tickers=NVDA,AMD,MSFT,GOOGL,AMZN,META
-        const res = await fetch("/api/news?limit=12");
-        if (!res.ok) {
-          throw new Error("Failed to fetch news");
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      // Optionally filter by tech tickers: ?tickers=NVDA,AMD,MSFT,GOOGL,AMZN,META
+      const res = await fetch("/api/news?limit=12");
+      const json = await res.json();
+      
+      if (!res.ok || json.ok === false) {
+        // Handle structured error response
+        let errorMsg = "Erreur lors du chargement des actualités";
+        if (json.error === "MISSING_FMP_API_KEY") {
+          errorMsg = "Configuration serveur manquante (clé API)";
+        } else if (json.error === "FMP_ERROR") {
+          errorMsg = `Erreur API FMP (status ${json.status || "unknown"})`;
+        } else if (json.error === "FMP_API_TIMEOUT") {
+          errorMsg = "Timeout lors de l'appel API (10s dépassés)";
+        } else if (json.error === "FETCH_ERROR") {
+          errorMsg = `Erreur réseau: ${json.details || "connexion échouée"}`;
+        } else if (json.error) {
+          errorMsg = json.error;
         }
-        const json = await res.json();
-        setData(json);
-      } catch (e: any) {
-        setError(e?.message || "Error loading news");
-        console.error("[NewsFeed] Error:", e);
-      } finally {
-        setLoading(false);
+        setError(errorMsg);
+        console.error("[NewsFeed] API Error:", json);
+        return;
       }
-    };
+      
+      setData(json);
+    } catch (e: any) {
+      const errorMsg = e?.message || "Erreur inattendue";
+      setError(errorMsg);
+      console.error("[NewsFeed] Fetch Error:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -94,9 +112,19 @@ export default function NewsFeed() {
               Les dernières nouvelles boursières en temps réel
             </p>
           </div>
-          <div className="text-center text-zinc-400 text-sm">
+          <div className="text-center text-zinc-400 text-sm mb-4">
             {error || "Aucune actualité disponible"}
           </div>
+          {error && (
+            <div className="text-center">
+              <button
+                onClick={fetchData}
+                className="inline-block border border-zinc-700 text-zinc-200 px-4 py-2 rounded-md text-sm font-medium hover:bg-zinc-900/50 transition-colors"
+              >
+                Réessayer
+              </button>
+            </div>
+          )}
         </div>
       </section>
     );

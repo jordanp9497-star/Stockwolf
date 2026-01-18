@@ -104,7 +104,7 @@ export default function Home() {
               href="/pricing"
               className="text-zinc-400 hover:text-zinc-100 text-sm font-medium transition-colors"
             >
-              Abonnement
+              Accéder à l'agent
             </Link>
           </nav>
         </div>
@@ -118,10 +118,10 @@ export default function Home() {
               {/* Left: Hero Content */}
               <div>
                 <h1 className="text-2xl md:text-3xl font-medium text-zinc-100 mb-6 leading-relaxed max-w-3xl mx-auto">
-                  Décuplez votre potentiel d'investisseur avec une longueur d'avance.
+                  Accès à votre agent IA boursier
                 </h1>
                 <p className="text-lg md:text-xl text-zinc-400 mb-6">
-                  Avec StockWolf, suivez les informations clés de vos secteurs favoris et prenez vos décisions avec plus de contexte.
+                  StockWolf analyse, filtre et priorise l'information pour vous aider à suivre l'essentiel de vos secteurs et valeurs.
                 </p>
                 <div className="mb-8">
                   <span className="inline-block px-4 py-2 bg-zinc-900 text-zinc-200 rounded-full text-sm font-medium border border-zinc-800">
@@ -133,13 +133,13 @@ export default function Home() {
                     href="/pricing"
                     className="inline-block bg-zinc-100 text-zinc-950 px-8 py-3 rounded-md font-medium hover:bg-zinc-200 transition-colors text-center"
                   >
-                    S'abonner — 4,99€/mois
+                    Activer l'agent — 4,99€/mois
                   </Link>
                   <button
                     onClick={scrollToSection}
                     className="inline-block border border-zinc-700 text-zinc-200 px-8 py-3 rounded-md font-medium hover:bg-zinc-900/50 transition-colors text-center"
                   >
-                    Voir comment ça marche
+                    Découvrir l'agent
                   </button>
                 </div>
               </div>
@@ -149,7 +149,7 @@ export default function Home() {
                 <div className="bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl p-6 max-w-md">
                   <div className="mb-4">
                     <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide mb-2">
-                      Aperçu d'un digest
+                      Aperçu du résumé
                     </h3>
                     <div className="space-y-3 text-sm">
                       <div className="border-l-4 border-green-500 pl-3">
@@ -191,25 +191,28 @@ export default function Home() {
               <div className="border border-zinc-800 rounded-lg p-6 bg-zinc-900/50 hover:shadow-lg hover:shadow-zinc-900/50 transition-shadow">
                 <div className="text-3xl mb-4">🤖</div>
                 <h3 className="text-xl font-semibold text-zinc-100 mb-2">
-                  Filtrage & score de pertinence
+                  Filtrage intelligent
                 </h3>
-                <p className="text-zinc-400 mb-2">
-                  StockWolf élimine les doublons et met en avant l'essentiel. Chaque actualité reçoit un score basé sur son impact potentiel, la fiabilité de la source et son lien avec vos secteurs suivis.
+                <p className="text-zinc-400">
+                  Les doublons disparaissent, les informations clés remontent en premier.
                 </p>
-                <p className="text-xs text-zinc-500 italic">
-                  Moins de bruit, plus de décisions éclairées.
+              </div>
+              <div className="border border-zinc-800 rounded-lg p-6 bg-zinc-900/50 hover:shadow-lg hover:shadow-zinc-900/50 transition-shadow">
+                <div className="text-3xl mb-4">📊</div>
+                <h3 className="text-xl font-semibold text-zinc-100 mb-2">
+                  Scores de pertinence
+                </h3>
+                <p className="text-zinc-400">
+                  Chaque news est classée selon impact, fiabilité et lien avec vos suivis.
                 </p>
               </div>
               <div className="border border-zinc-800 rounded-lg p-6 bg-zinc-900/50 hover:shadow-lg hover:shadow-zinc-900/50 transition-shadow">
                 <div className="text-3xl mb-4">✉️</div>
                 <h3 className="text-xl font-semibold text-zinc-100 mb-2">
-                  Résumé par email & alertes importantes
+                  Alertes & résumés
                 </h3>
-                <p className="text-zinc-400 mb-2">
-                  Recevez un résumé clair à la fréquence que vous choisissez. Et si une info peut vraiment compter, StockWolf vous envoie une alerte dédiée pour ne rien manquer.
-                </p>
-                <p className="text-xs text-zinc-500 italic">
-                  Vous suivez l'important, sans y passer des heures.
+                <p className="text-zinc-400">
+                  Recevez l'essentiel au bon moment, sans surcharge.
                 </p>
               </div>
             </div>
@@ -257,10 +260,10 @@ export default function Home() {
                   1
                 </div>
                 <h3 className="text-xl font-semibold text-zinc-100 mb-2">
-                  Vous vous abonnez
+                  Vous activez l'agent
                 </h3>
                 <p className="text-zinc-400">
-                  Choisissez votre abonnement et complétez votre profil en quelques minutes.
+                  Complétez votre profil en quelques minutes pour personnaliser l'agent selon vos secteurs.
                 </p>
               </div>
               <div className="text-center">
@@ -268,10 +271,10 @@ export default function Home() {
                   2
                 </div>
                 <h3 className="text-xl font-semibold text-zinc-100 mb-2">
-                  Vous recevez le digest par email
+                  L'agent analyse et filtre
                 </h3>
                 <p className="text-zinc-400">
-                  Recevez régulièrement un digest automatisé avec les dernières nouvelles de vos secteurs.
+                  Vous recevez l'essentiel : informations prioritaires, alertes utiles, résumés clairs.
                 </p>
               </div>
               <div className="text-center">
@@ -279,10 +282,10 @@ export default function Home() {
                   3
                 </div>
                 <h3 className="text-xl font-semibold text-zinc-100 mb-2">
-                  Vous gardez une longueur d'avance
+                  Vous décidez avec plus de contexte
                 </h3>
                 <p className="text-zinc-400">
-                  Soyez informé en premier des opportunités et des tendances de marché.
+                  Moins de bruit, plus de temps pour analyser et agir sur les signaux importants.
                 </p>
               </div>
             </div>
@@ -293,7 +296,8 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-zinc-800 py-8 px-4 sm:px-6 lg:px-8 bg-zinc-950 relative z-10">
         <div className="max-w-7xl mx-auto text-center text-sm text-zinc-400">
-          <p>Info uniquement — pas un conseil financier.</p>
+          <p className="mb-2">Conçu pour vous aider à décider avec plus de contexte — pas pour vous donner des conseils d'investissement.</p>
+          <p className="text-xs text-zinc-500">Info uniquement — pas un conseil financier.</p>
         </div>
       </footer>
 

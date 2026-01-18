@@ -139,10 +139,10 @@ export default function PricingPage() {
           {/* Header */}
           <div className="text-center mb-16">
             <h1 className="text-4xl font-semibold text-zinc-100 mb-4">
-              Abonnement
+              Accès Agent IA Boursier
             </h1>
             <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
-              Accédez à notre veille boursière IA/Tech automatisée
+              StockWolf analyse, filtre et priorise l'information pour vous aider à suivre l'essentiel de vos secteurs et valeurs.
             </p>
           </div>
 
@@ -151,7 +151,7 @@ export default function PricingPage() {
             <div className="border border-zinc-800 rounded-lg p-8 bg-zinc-900 shadow-xl hover:shadow-2xl hover:shadow-zinc-900/50 transition-shadow">
               <div className="mb-6">
                 <h2 className="text-2xl font-semibold text-zinc-100 mb-2">
-                  Accès mailing StockWolf
+                  Accès Agent IA Boursier
                 </h2>
                 <div className="flex items-baseline">
                   <span className="text-4xl font-semibold text-zinc-100">
@@ -164,21 +164,21 @@ export default function PricingPage() {
               <ul className="space-y-3 mb-8">
                 <li className="text-zinc-300 flex items-start">
                   <span className="text-zinc-500 mr-2">•</span>
-                  <span>Veille SEC (8-K / 10-Q / 10-K / S-1) + News</span>
+                  <span>Moins de bruit : on regroupe et classe l'info par importance.</span>
                 </li>
                 <li className="text-zinc-300 flex items-start">
                   <span className="text-zinc-500 mr-2">•</span>
-                  <span>Résumé IA: impact, importance, confiance</span>
+                  <span>Alertes utiles : notifications uniquement quand un signal compte vraiment.</span>
                 </li>
                 <li className="text-zinc-300 flex items-start">
                   <span className="text-zinc-500 mr-2">•</span>
-                  <span>Digest email + alertes (quand vraiment critique)</span>
+                  <span>Gain de temps : un résumé clair, actionnable, sans scroller des heures.</span>
                 </li>
               </ul>
 
               <div className="pt-4 border-t border-zinc-800">
                 <p className="text-xs text-zinc-500 italic">
-                  Info uniquement — pas un conseil financier.
+                  Conçu pour vous aider à décider avec plus de contexte — pas pour vous donner des conseils d'investissement.
                 </p>
               </div>
             </div>
@@ -243,7 +243,7 @@ export default function PricingPage() {
               disabled={loading}
               className="w-full mt-6 py-3 px-6 bg-zinc-100 text-zinc-950 rounded-md font-medium hover:bg-zinc-200 transition-colors disabled:bg-zinc-800 disabled:text-zinc-500 disabled:cursor-not-allowed"
             >
-              {loading ? "Redirection..." : "S'abonner"}
+              {loading ? "Redirection..." : "Activer l'agent"}
             </button>
           </div>
         </div>

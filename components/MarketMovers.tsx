@@ -20,25 +20,43 @@ export default function MarketMovers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const res = await fetch("/api/market-movers");
-        if (!res.ok) {
-          throw new Error("Failed to fetch market movers");
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch("/api/market-movers");
+      const json = await res.json();
+      
+      if (!res.ok || json.ok === false) {
+        // Handle structured error response
+        let errorMsg = "Erreur lors du chargement des données";
+        if (json.error === "MISSING_FMP_API_KEY") {
+          errorMsg = "Configuration serveur manquante (clé API)";
+        } else if (json.error === "FMP_ERROR") {
+          errorMsg = `Erreur API FMP (status ${json.status || "unknown"})`;
+        } else if (json.error === "FMP_API_TIMEOUT") {
+          errorMsg = "Timeout lors de l'appel API (10s dépassés)";
+        } else if (json.error === "FETCH_ERROR") {
+          errorMsg = `Erreur réseau: ${json.details || "connexion échouée"}`;
+        } else if (json.error) {
+          errorMsg = json.error;
         }
-        const json = await res.json();
-        setData(json);
-      } catch (e: any) {
-        setError(e?.message || "Error loading market data");
-        console.error("[MarketMovers] Error:", e);
-      } finally {
-        setLoading(false);
+        setError(errorMsg);
+        console.error("[MarketMovers] API Error:", json);
+        return;
       }
-    };
+      
+      setData(json);
+    } catch (e: any) {
+      const errorMsg = e?.message || "Erreur inattendue";
+      setError(errorMsg);
+      console.error("[MarketMovers] Fetch Error:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -108,9 +126,19 @@ export default function MarketMovers() {
           <h2 className="text-3xl font-semibold text-zinc-100 text-center mb-8">
             Trends du jour
           </h2>
-          <div className="text-center text-zinc-400 text-sm">
+          <div className="text-center text-zinc-400 text-sm mb-4">
             {error || "Données indisponibles"}
           </div>
+          {error && (
+            <div className="text-center">
+              <button
+                onClick={fetchData}
+                className="inline-block border border-zinc-700 text-zinc-200 px-4 py-2 rounded-md text-sm font-medium hover:bg-zinc-900/50 transition-colors"
+              >
+                Réessayer
+              </button>
+            </div>
+          )}
         </div>
       </section>
     );

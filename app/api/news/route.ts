@@ -27,8 +27,9 @@ export async function GET(req: NextRequest) {
     const apiKey = process.env.FMP_API_KEY;
 
     if (!apiKey) {
+      console.error("[NEWS] MISSING_FMP_API_KEY: env var not set");
       return NextResponse.json(
-        { error: "FMP_API_KEY not configured" },
+        { ok: false, error: "MISSING_FMP_API_KEY" },
         { status: 500 }
       );
     }
@@ -46,19 +47,63 @@ export async function GET(req: NextRequest) {
       apiUrl += `&tickers=${encodeURIComponent(tickers)}`;
     }
 
-    // Fetch news from FMP
-    const newsRes = await fetch(apiUrl, {
-      next: { revalidate: 300 },
-    });
+    // Timeout helper
+    const fetchWithTimeout = async (url: string, timeoutMs: number = 10000) => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const res = await fetch(url, {
+          next: { revalidate: 300 },
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+        return res;
+      } catch (e: any) {
+        clearTimeout(timeoutId);
+        if (e.name === "AbortError") {
+          throw new Error("FMP_API_TIMEOUT");
+        }
+        throw e;
+      }
+    };
 
-    if (!newsRes.ok) {
+    // Fetch news from FMP with timeout
+    let newsRes: Response;
+    try {
+      newsRes = await fetchWithTimeout(apiUrl, 10000);
+    } catch (e: any) {
+      console.error("[NEWS] Fetch timeout/error:", e?.message || String(e));
       return NextResponse.json(
-        { error: "FMP API error", status: newsRes.status },
+        { ok: false, error: e?.message === "FMP_API_TIMEOUT" ? "FMP_API_TIMEOUT" : "FETCH_ERROR", details: e?.message || String(e) },
         { status: 500 }
       );
     }
 
-    const newsData: FMPNewsItem[] = await newsRes.json();
+    if (!newsRes.ok) {
+      let bodyPreview = "";
+      try {
+        const text = await newsRes.text();
+        bodyPreview = text.substring(0, 200);
+      } catch {
+        bodyPreview = "Could not read response body";
+      }
+      console.error(`[NEWS] FMP_ERROR status=${newsRes.status}`, bodyPreview);
+      return NextResponse.json(
+        { ok: false, error: "FMP_ERROR", status: newsRes.status, bodyPreview },
+        { status: 500 }
+      );
+    }
+
+    let newsData: FMPNewsItem[];
+    try {
+      newsData = await newsRes.json();
+    } catch (e: any) {
+      console.error("[NEWS] JSON parse error:", e?.message || String(e));
+      return NextResponse.json(
+        { ok: false, error: "JSON_PARSE_ERROR", details: e?.message || String(e) },
+        { status: 500 }
+      );
+    }
 
     // Normalize data
     const normalize = (item: FMPNewsItem): NormalizedNewsItem => ({
@@ -76,7 +121,7 @@ export async function GET(req: NextRequest) {
       .slice(0, limit);
 
     return NextResponse.json(
-      { news: normalized },
+      { ok: true, news: normalized },
       {
         status: 200,
         headers: {
@@ -85,9 +130,9 @@ export async function GET(req: NextRequest) {
       }
     );
   } catch (e: any) {
-    console.error("[NEWS] Error:", e?.message || String(e));
+    console.error("[NEWS] Unexpected error:", e?.message || String(e), e?.stack);
     return NextResponse.json(
-      { error: "SERVER_ERROR", details: e?.message || String(e) },
+      { ok: false, error: "SERVER_ERROR", details: e?.message || String(e) },
       { status: 500 }
     );
   }

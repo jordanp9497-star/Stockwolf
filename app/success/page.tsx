@@ -8,13 +8,13 @@ export default function SuccessPage() {
           Paiement confirmé ✅
         </h1>
         <p className="text-lg text-zinc-400 mb-12">
-          Vous recevrez votre digest dès le prochain envoi.
+          Votre agent IA est activé. Vous recevrez vos premiers résumés et alertes très prochainement.
         </p>
         <Link
           href="/pricing"
           className="inline-block bg-zinc-100 text-zinc-950 px-8 py-3 rounded-md font-medium hover:bg-zinc-200 transition-colors"
         >
-          Retour à l'abonnement
+          Retour à l'agent
         </Link>
       </main>
     </div>
