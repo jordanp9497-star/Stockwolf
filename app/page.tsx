@@ -11,8 +11,8 @@ function StockWolfLogo() {
     <div className="flex flex-col gap-0.5">
       <div className="flex items-center gap-3">
         <div className="relative">
-          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-white/15 flex items-center justify-center bg-white/5 p-1">
-            <StockWolfIcon size={28} className="md:w-8 md:h-8 text-zinc-100" />
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-white/15 flex items-center justify-center bg-white/5 p-2">
+            <StockWolfIcon />
           </div>
         </div>
         <span 
