@@ -88,7 +88,8 @@ export async function POST(req: NextRequest) {
       const email = (session.metadata?.email || session.customer_details?.email || "").trim();
 
       if (session.subscription && client_id && client_name && plan && email) {
-        const sub = await stripe.subscriptions.retrieve(String(session.subscription));
+        const subRes = await stripe.subscriptions.retrieve(String(session.subscription));
+        const sub = (subRes as any)?.data ?? (subRes as any);
         await upsertClientAndSubscription({
           client_id,
           client_name,
@@ -104,7 +105,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (event.type === "customer.subscription.updated" || event.type === "customer.subscription.deleted") {
-      const sub = event.data.object as Stripe.Subscription;
+      const sub = event.data.object as any;
 
       const { data: existing, error } = await supabase
         .from("subscriptions")
