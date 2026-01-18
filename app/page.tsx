@@ -4,25 +4,19 @@ import Link from "next/link";
 import { useRef } from "react";
 import MarketMovers from "@/components/MarketMovers";
 import NewsFeed from "@/components/NewsFeed";
-import StockWolfIcon from "@/components/StockWolfLogo";
 
 function StockWolfLogo() {
   return (
     <div className="flex flex-col gap-0.5">
-      <div className="flex items-center gap-3">
-        <div className="relative">
-          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-white/15 flex items-center justify-center bg-white/5 p-2">
-            <StockWolfIcon />
-          </div>
-        </div>
+      <Link href="/" className="flex items-center">
         <span 
           className="text-xl font-bold text-zinc-100 tracking-tight"
           style={{ fontFamily: 'var(--font-sora)' }}
         >
           StockWolf
         </span>
-      </div>
-      <p className="text-[10px] text-zinc-500 ml-12 tracking-wide uppercase">IA & Tech • Market Intelligence</p>
+      </Link>
+      <p className="text-[10px] text-zinc-500 tracking-wide uppercase">IA & Tech • Market Intelligence</p>
     </div>
   );
 }
@@ -70,9 +64,7 @@ export default function Home() {
       {/* Header */}
       <header className="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-sm relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <Link href="/">
-            <StockWolfLogo />
-          </Link>
+          <StockWolfLogo />
           <nav>
             <Link
               href="/pricing"
