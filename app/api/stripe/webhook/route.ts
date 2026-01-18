@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { createClient } from "@supabase/supabase-js";
+import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
 
 export const runtime = "nodejs";
-
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+export const dynamic = "force-dynamic";
 
 function getStripe() {
   const key = process.env.STRIPE_SECRET_KEY;
@@ -15,17 +11,20 @@ function getStripe() {
   return new Stripe(key);
 }
 
-async function upsertClientAndSubscription(params: {
-  client_id: string;
-  client_name: string;
-  email: string;
-  plan: string;
-  status: string;
-  stripe_customer_id?: string | null;
-  stripe_subscription_id?: string | null;
-  stripe_price_id?: string | null;
-  current_period_end?: number | null;
-}) {
+async function upsertClientAndSubscription(
+  supabase: ReturnType<typeof getSupabaseAdmin>,
+  params: {
+    client_id: string;
+    client_name: string;
+    email: string;
+    plan: string;
+    status: string;
+    stripe_customer_id?: string | null;
+    stripe_subscription_id?: string | null;
+    stripe_price_id?: string | null;
+    current_period_end?: number | null;
+  }
+) {
   const { data: clientRow, error: clientErr } = await supabase
     .from("clients")
     .upsert(
@@ -79,6 +78,8 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const supabase = getSupabaseAdmin();
+
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
 
@@ -90,7 +91,7 @@ export async function POST(req: NextRequest) {
       if (session.subscription && client_id && client_name && plan && email) {
         const subRes = await stripe.subscriptions.retrieve(String(session.subscription));
         const sub = (subRes as any)?.data ?? (subRes as any);
-        await upsertClientAndSubscription({
+        await upsertClientAndSubscription(supabase, {
           client_id,
           client_name,
           email,
